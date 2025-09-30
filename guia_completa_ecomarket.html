@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoMarket: De Centralizado a Distribuido</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Colores pastel modernos */
+            --pastel-blue: #E8F4FD;
+            --pastel-green: #E8F5E8;
+            --pastel-yellow: #FFF8E1;
+            --pastel-pink: #FCE4EC;
+            --pastel-purple: #F3E5F5;
+            --pastel-orange: #FFF3E0;
+            
+            /* Colores de acento */
+            --blue-accent: #2196F3;
+            --green-accent: #4CAF50;
+            --yellow-accent: #FF9800;
+            --pink-accent: #E91E63;
+            --purple-accent: #9C27B0;
+            --orange-accent: #FF5722;
+            
+            /* Colores de texto */
+            --text-dark: #2E2E2E;
+            --text-medium: #5A5A5A;
+            --text-light: #8A8A8A;
+            
+            /* Espaciado */
+            --spacing-xs: 0.5rem;
+            --spacing-sm: 1rem;
+            --spacing-md: 1.5rem;
+            --spacing-lg: 2rem;
+            --spacing-xl: 3rem;
+            
+            /* Bordes */
+            --border-radius: 12px;
+            --border-radius-lg: 20px;
+            
+            /* Sombras */
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.1);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: linear-gradient(135deg, var(--pastel-blue) 0%, var(--pastel-purple) 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-lg);
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: var(--spacing-xl) 0;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: var(--spacing-sm);
+            background: linear-gradient(135deg, var(--blue-accent), var(--purple-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: var(--text-medium);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Barra de progreso */
+        .progress-bar {
+            background: white;
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: var(--shadow-md);
+        }
+
+        .progress-track {
+            background: #F5F5F5;
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: var(--spacing-sm);
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, var(--blue-accent), var(--green-accent));
+            height: 100%;
+            width: 0%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-top: var(--spacing-sm);
+        }
+
+        .progress-step {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            transition: color 0.3s ease;
+        }
+
+        .progress-step.active {
+            color: var(--blue-accent);
+            font-weight: 600;
+        }
+
+        .progress-step.completed {
+            color: var(--green-accent);
+            font-weight: 600;
+        }
+
+        /* Navegación de fases */
+        .phase-nav {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            overflow-x: auto;
+            padding: var(--spacing-sm);
+        }
+
+        .phase-nav-btn {
+            background: white;
+            border: 2px solid transparent;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .phase-nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .phase-nav-btn.active {
+            background: var(--blue-accent);
+            color: white;
+        }
+
+        .phase-nav-btn.fase1 { border-color: var(--pink-accent); }
+        .phase-nav-btn.fase2 { border-color: var(--blue-accent); }
+        .phase-nav-btn.fase3 { border-color: var(--green-accent); }
+        .phase-nav-btn.fase4 { border-color: var(--orange-accent); }
+
+        /* Tarjetas de fase */
+        .phase-card {
+            background: white;
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: var(--shadow-lg);
+            display: none;
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .phase-card.active {
+            display: block;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .phase-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 3px solid;
+        }
+
+        .phase-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+            font-weight: bold;
+        }
+
+        .fase1 .phase-header { border-color: var(--pink-accent); }
+        .fase1 .phase-icon { background: var(--pink-accent); }
+
+        .fase2 .phase-header { border-color: var(--blue-accent); }
+        .fase2 .phase-icon { background: var(--blue-accent); }
+
+        .fase3 .phase-header { border-color: var(--green-accent); }
+        .fase3 .phase-icon { background: var(--green-accent); }
+
+        .fase4 .phase-header { border-color: var(--orange-accent); }
+        .fase4 .phase-icon { background: var(--orange-accent); }
+
+        .phase-title {
+            flex: 1;
+        }
+
+        .phase-title h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .phase-duration {
+            background: var(--pastel-yellow);
+            color: var(--yellow-accent);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Elementos especiales */
+        .learning-objective {
+            background: var(--pastel-green);
+            border-left: 4px solid var(--green-accent);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius);
+            margin: var(--spacing-md) 0;
+        }
+
+        .learning-objective h3 {
+            color: var(--green-accent);
+            margin-bottom: var(--spacing-xs);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .warning-box {
+            background: var(--pastel-orange);
+            border-left: 4px solid var(--orange-accent);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius);
+            margin: var(--spacing-md) 0;
+        }
+
+        .warning-box h3 {
+            color: var(--orange-accent);
+            margin-bottom: var(--spacing-xs);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .tip-box {
+            background: var(--pastel-purple);
+            border-left: 4px solid var(--purple-accent);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius);
+            margin: var(--spacing-md) 0;
+        }
+
+        .tip-box h3 {
+            color: var(--purple-accent);
+            margin-bottom: var(--spacing-xs);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        /* Bloques de código */
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: var(--spacing-md) 0;
+            position: relative;
+        }
+
+        .code-header {
+            background: #2d2d2d;
+            color: #fff;
+            padding: var(--spacing-xs) var(--spacing-md);
+            margin: calc(-1 * var(--spacing-md)) calc(-1 * var(--spacing-md)) var(--spacing-md) calc(-1 * var(--spacing-md));
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .copy-btn {
+            background: var(--blue-accent);
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #1976D2;
+        }
+
+        /* Actividades */
+        .activity {
+            background: linear-gradient(135deg, var(--pastel-blue), var(--pastel-purple));
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-lg);
+            margin: var(--spacing-lg) 0;
+        }
+
+        .activity h3 {
+            color: var(--blue-accent);
+            margin-bottom: var(--spacing-md);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .activity-steps {
+            list-style: none;
+            counter-reset: step-counter;
+        }
+
+        .activity-steps li {
+            counter-increment: step-counter;
+            margin-bottom: var(--spacing-md);
+            padding-left: 3rem;
+            position: relative;
+        }
+
+        .activity-steps li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: var(--blue-accent);
+            color: white;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* Checkpoints */
+        .checkpoint {
+            background: white;
+            border: 2px solid var(--green-accent);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            margin: var(--spacing-md) 0;
+        }
+
+        .checkpoint h4 {
+            color: var(--green-accent);
+            margin-bottom: var(--spacing-sm);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .checkpoint-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin: var(--spacing-xs) 0;
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--green-accent);
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .checkbox.checked {
+            background: var(--green-accent);
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: var(--spacing-md);
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .phase-nav {
+                flex-direction: column;
+            }
+
+            .phase-nav-btn {
+                min-width: auto;
+            }
+
+            .phase-card {
+                padding: var(--spacing-md);
+            }
+        }
+
+        /* Efectos especiales */
+        .fade-in {
+            animation: fadeIn 0.6s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .slide-up {
+            animation: slideUp 0.6s ease forwards;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🏪 EcoMarket: De Centralizado a Distribuido</h1>
+            <p>Una guía práctica paso a paso para entender y construir sistemas distribuidos modernos con FastAPI</p>
+        </header>
+
+        <!-- Barra de progreso -->
+        <div class="progress-bar">
+            <div class="progress-track">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-steps">
+                <span class="progress-step" data-phase="0">Conceptos</span>
+                <span class="progress-step" data-phase="1">Implementación</span>
+                <span class="progress-step" data-phase="2">Comunicación</span>
+                <span class="progress-step" data-phase="3">Resiliencia</span>
+            </div>
+        </div>
+
+        <!-- Navegación de fases -->
+        <nav class="phase-nav">
+            <button class="phase-nav-btn fase1 active" onclick="showPhase(0)">
+                🎯 Fase 1: Conceptos
+            </button>
+            <button class="phase-nav-btn fase2" onclick="showPhase(1)">
+                💻 Fase 2: Código
+            </button>
+            <button class="phase-nav-btn fase3" onclick="showPhase(2)">
+                📢 Fase 3: Presentación
+            </button>
+            <button class="phase-nav-btn fase4" onclick="showPhase(3)">
+                🛡️ Fase 4: Resiliencia
+            </button>
+        </nav>
+
+        <!-- Fase 1: Conceptos y Decisiones -->
+        <div class="phase-card fase1 active" data-phase="0">
+            <div class="phase-header">
+                <div class="phase-icon">🎯</div>
+                <div class="phase-title">
+                    <h2>Fase 1: Del Caos a la Claridad</h2>
+                    <p>Transformando investigación en principios de diseño</p>
+                </div>
+                <div class="phase-duration">45 min</div>
+            </div>
+
+            <div class="learning-objective">
+                <h3>🎯 Objetivo de Aprendizaje</h3>
+                <p>Convertir la investigación teórica sobre sistemas distribuidos en principios de diseño concretos que guiarán la implementación de EcoMarket. Al final de esta fase, tendrás un "DNA arquitectónico" claro que justifica cada decisión técnica.</p>
+            </div>
+
+            <h3>🏪 El Problema Real: ¿Por qué EcoMarket no puede simplemente "crecer"?</h3>
+            <p>EcoMarket ha tenido un éxito rotundo con su sistema centralizado. Pero ahora enfrentan un problema que no se resuelve con más hardware o mejor internet: <strong>la física de la distribución</strong>.</p>
+
+            <div class="warning-box">
+                <h3>⚠️ Los Tres Enemigos del Crecimiento</h3>
+                <p><strong>Latencia:</strong> Cada consulta de inventario debe viajar hasta el servidor central y regresar. Con 200ms de latencia de red, cada venta toma al menos 400ms adicionales.</p>
+                <p><strong>Disponibilidad:</strong> Si se cae internet en una sucursal, no pueden vender nada. Perder 2 horas de ventas en día ocupado puede costar miles de pesos.</p>
+                <p><strong>Consistencia:</strong> Sin una estrategia clara, pueden vender el mismo producto múltiples veces o mostrar stock inexistente.</p>
+            </div>
+
+            <div class="activity">
+                <h3>🔬 Actividad: Construyendo Tu DECISIONS.md</h3>
+                <p>Este archivo será el "DNA" de tu arquitectura. Cada línea que escribas debe poder defenderse ante un CEO escéptico.</p>
+
+                <ol class="activity-steps">
+                    <li>
+                        <strong>Forma equipos diversos:</strong> Necesitas diferentes perspectivas. Una persona actúa como "arquitecto de software", otra como "gerente de operaciones" y otra como "representante del cliente".
+                    </li>
+                    <li>
+                        <strong>Revisa tu investigación previa:</strong> ¿Qué aprendiste de casos como Amazon, Netflix o Spotify? No copies sus soluciones; entiende sus <em>principios</em>.
+                    </li>
+                    <li>
+                        <strong>Completa la plantilla:</strong> Para cada principio, no solo digas qué harás, sino <em>por qué</em> es la decisión correcta para EcoMarket específicamente.
+                    </li>
+                </ol>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span>📝 DECISIONS.md - Plantilla</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                </div>
+<pre># Principios de Diseño para EcoMarket
+
+## 1. Principio de Autonomía de Sucursales (Offline-First)
+
+* **Principio Clave que Adoptaremos**: Cada sucursal operará de forma autónoma, 
+  manteniendo su propio inventario local y procesando ventas sin depender 
+  de la conectividad con el servidor central.
+
+* **Justificación**: Aprendimos de casos como el de Amazon en sus centros de 
+  distribución que las fallas en la red central no pueden detener las 
+  operaciones críticas del negocio. La venta debe completarse inmediatamente.
+
+* **Riesgo que Mitigaremos**: Evitaremos las consultas de inventario síncronas 
+  entre sucursales durante el proceso de venta.
+
+* **Justificación**: Una espera de más de 2-3 segundos por una consulta de stock 
+  es inaceptable en el punto de venta y genera una mala experiencia del cliente.
+
+## 2. Principio de Consistencia Eventual
+
+* **Principio Clave que Adoptaremos**: Implementaremos un modelo de "consistencia 
+  eventual" donde las actualizaciones de inventario se propagan de forma 
+  asíncrona entre sucursales.
+
+* **Justificación**: Basado en el teorema CAP, priorizamos Disponibilidad 
+  (Availability) y Tolerancia a Particiones (Partition Tolerance) sobre 
+  Consistencia absoluta, ya que es más importante completar la venta que 
+  tener datos perfectamente sincronizados en tiempo real.
+
+* **Riesgo que Mitigaremos**: Posibles sobreventas temporales de productos 
+  con stock limitado.
+
+* **Justificación**: Es mejor manejar ocasionalmente una sobreventa (que se 
+  puede resolver con el cliente) que perder ventas por un sistema no disponible.
+
+## Estrategia de Consistencia
+
+### Modelo Adoptado: Consistencia Eventual
+
+**Trade-off Aceptado**: 
+- ✅ **Ganamos**: Ventas rápidas, operación sin internet, mejor experiencia del cliente
+- ⚠️ **Aceptamos**: Posibles discrepancias temporales en el inventario central</pre>
+            </div>
+
+            <div class="tip-box">
+                <h3>💡 Momento de Reflexión Crítica</h3>
+                <p><strong>Pregunta para tu equipo:</strong> "Si fueran el CEO de EcoMarket, ¿preferirían ocasionalmente sobrevender un producto (que se puede resolver hablando con el cliente) o que su sistema sea lento/no disponible y pierdan ventas definitivamente?"</p>
+                <p>Esta pregunta toca el corazón de los sistemas distribuidos: <strong>no puedes tener todo perfecto, tienes que elegir qué optimizar</strong>.</p>
+            </div>
+
+            <div class="checkpoint">
+                <h4>✅ Checkpoint de Fase 1</h4>
+                <div class="checkpoint-item">
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span>Completé el archivo DECISIONS.md con al menos 3 principios bien justificados</span>
+                </div>
+                <div class="checkpoint-item">
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span>Cada principio está conectado con evidencia de mi investigación previa</span>
+                </div>
+                <div class="checkpoint-item">
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span>Puedo explicar cada trade-off en términos de beneficios de negocio</span>
+                </div>
+                <div class="checkpoint-item">
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span>Mi equipo revisó y dio feedback sobre nuestros principios de diseño</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fase 2: Implementación -->
+        <div class="phase-card fase2" data-phase="1">
+            <div class="phase-header">
+                <div class="phase-icon">💻</div>
+                <div class="phase-title">
+                    <h2>Fase 2: De Principios a Código</h2>
+                    <p>Construyendo autonomía real con FastAPI</p>
+                </div>
+                <div class="phase-duration">90 min</div>
+            </div>
+
+            <div class="learning-objective">
+                <h3>🎯 Objetivo de Aprendizaje</h3>
+                <p>Transformar los principios abstractos de la Fase 1 en una implementación funcional que demuestre autonomía, comunicación asíncrona y consistencia eventual. No solo escribirás código; <strong>materializarás conceptos de sistemas distribuidos</strong>.</p>
+            </div>
+
+            <h3>🏗️ Arquitectura del Sistema</h3>
+            <p>Vas a construir dos servicios FastAPI que trabajen juntos pero mantengan independencia operacional:</p>
+
+            <div class="activity">
+                <h3>🎨 Actividad 1: Diseño Visual (15 min)</h3>
+                <p>Antes de escribir código, dibuja la arquitectura. No necesitas ser un artista; necesitas claridad conceptual.</p>
+                
+                <ol class="activity-steps">
+                    <li>
+                        <strong>Dibuja dos rectángulos:</strong> "API Central" (puerto 8000) y "API Sucursal 1" (puerto 8001)
+                    </li>
+                    <li>
+                        <strong>Indica las comunicaciones:</strong> ¿La sucursal "pregunta" al central o "notifica"? Usa flechas con etiquetas claras
+                    </li>
+                    <li>
+                        <strong>Marca los datos:</strong> ¿Dónde vive la "verdad" del inventario? ¿En el central, en la sucursal, o en ambos?
+                    </li>
+                </ol>
+            </div>
+
+            <h3>🔧 Configuración del Proyecto</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span>📦 requirements.txt</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                </div>
+<pre>fastapi==0.104.1
+uvicorn==0.24.0
+httpx==0.25.2
+pydantic==2.5.0</pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span>🚀 Instalación</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                </div>
+<pre># Crear entorno virtual
+python -m venv venv
+
+# Activar (Windows)
+venv\Scripts\activate
+
+# Activar (Mac/Linux)
+source venv/bin/activate
+
+# Instalar dependencias
+pip install -r requirements.txt</pre>
+            </div>
+
+            <div class="activity">
+                <h3>💻 Actividad 2: API Central - El Cerebro del Sistema (30 min)</h3>
+                <p>Esta API mantiene el inventario "maestro" y recibe notificaciones de todas las sucursales.</p>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span>🏢 central_api.py</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                </div>
+<pre>"""
+EcoMarket Central API
+Este es el servidor central que mantiene el inventario maestro 
+y recibe notificaciones de todas las sucursales.
+"""
+
+from fastapi import FastAPI, HTTPException, BackgroundTasks
+from pydantic import BaseModel
+from typing import Dict, List, Optional
+from datetime import datetime
+import logging
+
+# Configurar logging para ver las comunicaciones entre servicios
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+app = FastAPI(
+    title="EcoMarket Central API",
+    description="API central que gestiona el inventario maestro",
+    version="1.0.0"
+)
+
+# ===== MODELOS DE DATOS =====
+
+class Product(BaseModel):
+    """Modelo que representa un producto en el inventario"""
+    id: int
+    name: str
+    price: float
+    stock: int
+    
+class SaleNotification(BaseModel):
+    """Notificación de venta enviada por las sucursales"""
+    branch_id: str
+    product_id: int
+    quantity_sold: int
+    timestamp: datetime
+    sale_price: float
+
+# ===== INVENTARIO CENTRAL =====
+# En un sistema real, esto sería una base de datos
+central_inventory: Dict[int, Product] = {
+    1: Product(id=1, name="Manzanas Orgánicas", price=2.50, stock=100),
+    2: Product(id=2, name="Pan Integral", price=1.80, stock=50),
+    3: Product(id=3, name="Leche Deslactosada", price=3.20, stock=30),
+    4: Product(id=4, name="Café Premium", price=8.90, stock=25),
+    5: Product(id=5, name="Quinoa", price=12.50, stock=15)
+}
+
+# ===== ENDPOINTS PRINCIPALES =====
+
+@app.get("/", tags=["General"])
+async def root():
+    """Endpoint de salud del servicio"""
+    return {
+        "service": "EcoMarket Central API",
+        "status": "operational",
+        "timestamp": datetime.now(),
+        "total_products": len(central_inventory)
+    }
+
+@app.get("/inventory", response_model=List[Product], tags=["Inventario"])
+async def get_full_inventory():
+    """Obtiene todo el inventario central"""
+    logger.info("Solicitud de inventario completo recibida")
+    return list(central_inventory.values())
+
+@app.post("/sale-notification", tags=["Comunicación"])
+async def receive_sale_notification(notification: SaleNotification):
+    """
+    CONCEPTO CLAVE: Comunicación asíncrona
+    
+    Este endpoint recibe notificaciones de venta de las sucursales
+    y actualiza el inventario central. Nota que las sucursales
+    NO esperan una respuesta para completar su venta.
+    """
+    logger.info(f"📦 Notificación de venta recibida: {notification}")
+    
+    # Verificar que el producto existe
+    if notification.product_id not in central_inventory:
+        raise HTTPException(
+            status_code=404, 
+            detail=f"Producto {notification.product_id} no encontrado"
+        )
+    
+    # Actualizar el inventario central
+    product = central_inventory[notification.product_id]
+    old_stock = product.stock
+    product.stock = max(0, product.stock - notification.quantity_sold)
+    
+    logger.info(
+        f"📊 Inventario actualizado - {product.name}: "
+        f"{old_stock} → {product.stock}"
+    )
+    
+    return {
+        "status": "received",
+        "message": f"Venta registrada para {notification.quantity_sold} unidades",
+        "updated_central_stock": product.stock
+    }
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)</pre>
+            </div>
+
+            <div class="activity">
+                <h3>🏪 Actividad 3: API Sucursal - Autonomía en Acción (45 min)</h3>
+                <p>Esta es donde ocurre la magia: ventas que se procesan inmediatamente sin esperar al servidor central.</p>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span>🏪 sucursal_api.py</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                </div>
+<pre>"""
+EcoMarket Sucursal API
+Esta API implementa el principio de AUTONOMÍA: puede operar 
+independientemente del servidor central.
+"""
+
+from fastapi import FastAPI, HTTPException, BackgroundTasks
+from pydantic import BaseModel
+from typing import Dict, List, Optional
+from datetime import datetime
+import httpx
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+app = FastAPI(
+    title="EcoMarket Sucursal API",
+    description="API de sucursal autónoma",
+    version="1.0.0"
+)
+
+# ===== CONFIGURACIÓN =====
+BRANCH_ID = "sucursal-001"
+CENTRAL_API_URL = "http://localhost:8000"
+
+# ===== MODELOS =====
+
+class Product(BaseModel):
+    id: int
+    name: str
+    price: float
+    stock: int
+
+class SaleRequest(BaseModel):
+    product_id: int
+    quantity: int
+    customer_info: Optional[str] = None
+
+class SaleResponse(BaseModel):
+    sale_id: str
+    product_name: str
+    quantity_sold: int
+    total_amount: float
+    timestamp: datetime
+    status: str
+
+# ===== INVENTARIO LOCAL (AUTONOMÍA) =====
+# CONCEPTO CLAVE: Cada sucursal mantiene su propia "verdad local"
+local_inventory: Dict[int, Product] = {
+    1: Product(id=1, name="Manzanas Orgánicas", price=2.50, stock=25),
+    2: Product(id=2, name="Pan Integral", price=1.80, stock=15),
+    3: Product(id=3, name="Leche Deslactosada", price=3.20, stock=8),
+    4: Product(id=4, name="Café Premium", price=8.90, stock=6),
+    5: Product(id=5, name="Quinoa", price=12.50, stock=3)
+}
+
+sales_history: List[SaleResponse] = []
+
+# ===== ENDPOINTS =====
+
+@app.get("/", tags=["General"])
+async def root():
+    return {
+        "service": f"EcoMarket Sucursal",
+        "branch_id": BRANCH_ID,
+        "status": "operational - AUTONOMOUS",
+        "local_inventory_items": len(local_inventory),
+        "total_sales": len(sales_history)
+    }
+
+@app.get("/inventory", response_model=List[Product], tags=["Inventario"])
+async def get_local_inventory():
+    """
+    CONCEPTO CLAVE: Consulta local instantánea
+    
+    Esta consulta no va al servidor central. Es inmediata
+    porque consulta el inventario local de la sucursal.
+    """
+    logger.info("🏪 Consultando inventario LOCAL (operación autónoma)")
+    return list(local_inventory.values())
+
+@app.post("/sales", response_model=SaleResponse, tags=["Ventas"])
+async def process_sale(sale_request: SaleRequest, background_tasks: BackgroundTasks):
+    """
+    CONCEPTO CLAVE: Procesamiento autónomo de ventas
+    
+    Este es el corazón de la autonomía:
+    1. Verifica stock LOCAL inmediatamente
+    2. Procesa la venta SIN esperar al servidor central  
+    3. Envía notificación al central de forma ASÍNCRONA
+    """
+    
+    # PASO 1: Verificación inmediata contra inventario local
+    if sale_request.product_id not in local_inventory:
+        raise HTTPException(status_code=404, detail="Producto no disponible")
+    
+    product = local_inventory[sale_request.product_id]
+    
+    if product.stock < sale_request.quantity:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Stock insuficiente. Disponible: {product.stock}"
+        )
+    
+    # PASO 2: Procesar la venta INMEDIATAMENTE
+    product.stock -= sale_request.quantity
+    sale_timestamp = datetime.now()
+    total_amount = product.price * sale_request.quantity
+    
+    sale_response = SaleResponse(
+        sale_id=f"{BRANCH_ID}_{sale_timestamp.isoformat()}",
+        product_name=product.name,
+        quantity_sold=sale_request.quantity,
+        total_amount=total_amount,
+        timestamp=sale_timestamp,
+        status="completed"
+    )
+    
+    sales_history.append(sale_response)
+    
+    logger.info(
+        f"💰 Venta procesada LOCALMENTE: {sale_request.quantity}x {product.name} "
+        f"por ${total_amount:.2f}. Stock restante: {product.stock}"
+    )
+    
+    # PASO 3: Notificar al central de forma ASÍNCRONA
+    # Esta operación NO bloquea la respuesta al cliente
+    background_tasks.add_task(
+        notify_central_about_sale,
+        sale_request.product_id,
+        sale_request.quantity,
+        sale_timestamp,
+        total_amount
+    )
+    
+    return sale_response
+
+async def notify_central_about_sale(
+    product_id: int,
+    quantity_sold: int,
+    timestamp: datetime,
+    sale_amount: float
+):
+    """
+    CONCEPTO CLAVE: Comunicación asíncrona resiliente
+    
+    Esta función se ejecuta en segundo plano.
+    Si falla, la venta ya está completada localmente.
+    """
+    notification = {
+        "branch_id": BRANCH_ID,
+        "product_id": product_id,
+        "quantity_sold": quantity_sold,
+        "timestamp": timestamp.isoformat(),
+        "sale_price": sale_amount
+    }
+    
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            logger.info("📡 Enviando notificación al servidor central...")
+            
+            response = await client.post(
+                f"{CENTRAL_API_URL}/sale-notification",
+                json=notification
+            )
+            
+            if response.status_code == 200:
+                logger.info("✅ Notificación enviada exitosamente")
+            else:
+                logger.warning(f"⚠️ Respuesta inesperada: {response.status_code}")
+                
+    except Exception as e:
+        logger.error(f"❌ Error al notificar al central: {e}")
+        # IMPORTANTE: La venta YA está completada, esto es solo notificación
+
+@app.get("/sales/stats", tags=["Ventas"])
+async def get_sales_stats():
+    """Estadísticas de ventas de la sucursal"""
+    if not sales_history:
+        return {"total_sales": 0, "total_revenue": 0}
+    
+    total_revenue = sum(sale.total_amount for sale in sales_history)
+    return {
+        "total_sales": len(sales_history),
+        "total_revenue": round(total_revenue, 2),
+        "average_sale": round(total_revenue / len(sales_history), 2)
+    }
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8001)</pre>
+            </div>
+
+            <div class="tip-box">
+                <h3>🧠 Momento de Comprensión Profunda</h3>
+                <p><strong>Pregunta crítica:</strong> "¿En qué orden exacto ocurren estos pasos en tu código de venta?"</p>
+                <p>1. Verificar stock local → 2. Actualizar inventario local → 3. Responder al cliente → 4. Notificar al central</p>
+                <p><strong>¿Por qué ese orden es crucial?</strong> Porque garantiza que la experiencia del cliente no depende de la red. El cliente recibe confirmación inmediata, y la sincronización ocurre después.</p>
+            </div>
+
+            <div class="activity">
+                <h3>🚀 Actividad 4: Primera Demo del Sistema (20 min)</h3>
+                <p>Es momento de ver tu sistema distribuido en acción.</p>
+                
+                <ol class="activity-steps">
+                    <li>
+                        <strong>Terminal 1:</strong> <code>python central_api.py</code>
+                    </li>
+                    <li>
+                        <strong>Terminal 2:</strong> <code>python sucursal_api.py</code>
+                    </li>
+                    <li>
+                        <strong>Abrir navegador:</strong> 
+                        <br>• Central: <code>http://localhost:8000/docs</code>
+                        <br>• Sucursal: <code>http://localhost:8001/docs</code>
+                    </li>
+                    <li>
+                        <strong>Procesar una venta:</strong> Usa la interfaz de FastAPI para vender 5 manzanas
+                    </li>
+                    <li>
+                        <strong>Observar logs:</strong> Ve cómo la venta se procesa localmente y luego se notifica al central
+                    </li>
+                </ol>
+            </div>
+
+            <div class="checkpoint">
+                <h4>✅ Checkpoint de Fase 2</h4>
+                <div class="checkpoint-item">
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span>Ambas APIs están corriendo y responden en sus puertos</span>
+                </div>
+                <div class="checkpoint-item">
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span>Procesé al menos una venta exitosamente</span>
+                </div>
+                <div class="checkpoint-item">
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span>Vi los logs mostrando la secuencia: venta local → notificación central</span>
+                </div>
+                <div class="checkpoint-item">
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span>Puedo explicar por qué la venta se completa antes de notificar al central</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fase 3: Presentación -->
+        <div class="phase-card fase3" data-phase="2">
+            <div class="phase-header">
+                <div class="phase-icon">📢</div>
+                <div class="phase-title">
+                    <h2>Fase 3: Vendiendo la Visión</h2>
+                    <p>Traduciendo decisiones técnicas en valor de negocio</p>
+                </div>
+                <div class="phase-duration">45 min</div>
+            </div>
+
+            <div class="learning-objective">
+                <h3>🎯 Objetivo de Aprendizaje</h3>
+                <p>Desarrollar la habilidad profesional crítica de comunicar decisiones técnicas complejas a audiencias no técnicas. Al final, podrás justificar cualquier inversión en arquitectura distribuida en términos de beneficios concretos de negocio.</p>
+            </div>
+
+            <div class="warning-box">
+                <h3>⚠️ El Reto de Comunicación</h3>
+                <p>Los mejores arquitectos pueden explicar por qué su solución vale millones de pesos de inversión. Tu reto: convencer a un CEO que no programa, pero sí entiende de costos, riesgos y experiencia del cliente.</p>
+            </div>
+
+            <div class="activity">
+                <h3>🎭 Actividad 1: Role-Playing Empresarial (20 min)</h3>
+                <p>Vamos a simular una junta directiva real. Necesitas roles específicos para que funcione:</p>
+                
+                <ol class="activity-steps">
+                    <li>
+                        <strong>El CEO (escéptico):</strong> Pregunta por costos, riesgos, y ROI. No le importa la tecnología, le importa el negocio.
+                    </li>
+                    <li>
+                        <strong>El Arquitecto (tú):</strong> Debe traducir cada concepto técnico en beneficio empresarial medible.
+                    </li>
+                    <li>
+                        <strong>El Gerente de Operaciones:</strong> Entiende los dolores de las sucursales y puede validar si la solución los resuelve.
+                    </li>
+                    <li>
+                        <strong>El Representante de Clientes:</strong> Se enfoca en la experiencia del usuario final.
+                    </li>
+                </ol>
+            </div>
+
+            <h3>📊 Framework de Presentación: De Problema a Solución</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span>🎯 Estructura de 5 Diapositivas</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                </div>
+<pre>DIAPOSITIVA 1: EL COSTO DE NO ACTUAR
+❌ Con sistema actual (centralizado):
+• Cada venta toma 3-5 segundos extra por verificación de red
+• Si internet falla 2 horas, perdemos 100% de ventas en esa sucursal
+• Clientes frustrados por lentitud = pérdida de reputación
+
+💰 Impacto real: En día ocupado (500 ventas), sistema lento puede
+    costar 2-3 ventas perdidas por impaciencia = $200-300 perdidos
+
+DIAPOSITIVA 2: NUESTRA SOLUCIÓN - AUTONOMÍA INTELIGENTE
+✅ Sistema distribuido con autonomía:
+• Ventas instantáneas (menos de 100ms vs 3000ms)
+• Operación garantizada sin internet
+• Sincronización inteligente en segundo plano
+
+🎯 Beneficio clave: NUNCA perdemos una venta por problemas técnicos
+
+DIAPOSITIVA 3: DECISIONES BASADAS EN EVIDENCIA
+📚 Nuestros principios vienen de casos reales:
+• Amazon: Autonomía de centros de distribución
+• Netflix: Consistencia eventual para escalabilidad
+• Spotify: Comunicación asíncrona para resiliencia
+
+🧠 No estamos inventando; estamos aplicando patrones probados
+
+DIAPOSITIVA 4: DEMO EN VIVO
+[Mostrar venta procesándose en milisegundos]
+🚀 "Observen: venta completada ANTES de que termine de hablar"
+📊 "Inventario se actualiza automáticamente en el central"
+🛡️ "Si desconecto internet, la sucursal sigue vendiendo"
+
+DIAPOSITIVA 5: PRÓXIMOS PASOS Y ROI
+💡 Próxima semana: Añadir Circuit Breaker para máxima resiliencia
+📈 ROI esperado: 
+• Reducir tiempo de venta: 70% más rápido
+• Eliminar ventas perdidas por fallas: +5% ingresos
+• Reducir llamadas de soporte: -40% tickets relacionados con lentitud</pre>
+            </div>
+
+            <div class="activity">
+                <h3>🎤 Actividad 2: Elevator Pitch Perfecto (15 min)</h3>
+                <p>Cada miembro del equipo prepara un discurso de exactamente 2 minutos. El objetivo: convencer al CEO en el tiempo que dura un viaje en elevador.</p>
+                
+                <ol class="activity-steps">
+                    <li>
+                        <strong>Minuto 1:</strong> El problema (pérdida de dinero por sistema lento/no disponible)
+                    </li>
+                    <li>
+                        <strong>Minuto 2:</strong> La solución (ventas instantáneas + operación sin internet)
+                    </li>
+                    <li>
+                        <strong>Practicar:</strong> Cronómetren y refinen hasta que fluya naturalmente
+                    </li>
+                </ol>
+            </div>
+
+            <div class="tip-box">
+                <h3>💡 Técnicas de Comunicación Efectiva</h3>
+                <p><strong>Usa números concretos:</strong> En lugar de "más rápido", di "70% reducción en tiempo de venta"</p>
+                <p><strong>Habla en términos de dinero:</strong> "Cada segundo de demora cuesta aproximadamente $X en ventas perdidas"</p>
+                <p><strong>Usa analogías:</strong> "Es como tener una sucursal que funciona incluso si se corta el teléfono con la matriz"</p>
+                <p><strong>Anticipa objeciones:</strong> Ten respuestas preparadas para "¿Qué pasa si...?" y "¿Cuánto cuesta...?"</p>
+            </div>
+
+            <div class="activity">
+                <h3>🔄 Actividad 3: Feedback y Refinamiento (10 min)</h3>
+                <p>Después de cada presentación, rotación de roles para dar feedback constructivo:</p>
+                
+                <ol class="activity-steps">
+                    <li>
+                        <strong>El "CEO" dice:</strong> ¿Qué entendí? ¿Qué me convenció? ¿Qué dudas me quedaron?
+                    </li>
+                    <li>
+                        <strong>El equipo refina:</strong> Ajustar el mensaje basado en feedback inmediato
+                    </li>
+                    <li>
+                        <strong>Segunda iteración:</strong> Presentar versión mejorada
+                    </li>
+                </ol>
+            </div>
+
+            <div class="learning-objective">
+                <h3>🧠 Reflexión Meta-Cognitiva</h3>
+                <p><strong>Pregunta profunda:</strong> "¿Qué fue más difícil: escribir el código o explicar por qué vale la pena la inversión?"</p>
+                <p>Esta reflexión toca una realidad profesional: las mejores soluciones técnicas fracasan si no se pueden comunicar efectivamente. La habilidad de traducir complejidad técnica en valor de negocio es lo que distingue a arquitectos senior de desarrolladores junior.</p>
+            </div>
+
+            <div class="checkpoint">
+                <h4>✅ Checkpoint de Fase 3</h4>
+                <div class="checkpoint-item">
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span>Completé las 5 diapositivas con contenido específico de mi implementación</span>
+                </div>
+                <div class="checkpoint-item">
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span>Mi elevator pitch dura exactamente 2 minutos y convence con números concretos</span>
+                </div>
+                <div class="checkpoint-item">
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span>Puedo responder preguntas escépticas sobre costos y riesgos</span>
+                </div>
+                <div class="checkpoint-item">
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span>Mi demo muestra valor tangible (velocidad, autonomía) no solo funcionalidad</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fase 4: Resiliencia -->
+        <div class="phase-card fase4" data-phase="3">
+            <div class="phase-header">
+                <div class="phase-icon">🛡️</div>
+                <div class="phase-title">
+                    <h2>Fase 4: Preparándose para el Caos</h2>
+                    <p>Patrones de resiliencia para sistemas distribuidos</p>
+                </div>
+                <div class="phase-duration">30 min</div>
+            </div>
+
+            <div class="learning-objective">
+                <h3>🎯 Objetivo de Aprendizaje</h3>
+                <p>Comprender que los sistemas distribuidos no solo deben funcionar cuando todo va bien, sino especialmente cuando todo va mal. Explorarás patrones de resiliencia que distinguen sistemas amateur de sistemas de producción real.</p>
+            </div>
+
+            <h3>🤔 El Siguiente Problema Natural</h3>
+            <p>Tu sistema funciona perfectamente... hasta que no. ¿Qué pasa cuando la comunicación entre sucursal y central falla repetidamente? Tu implementación actual reintenta indefinidamente, lo cual puede sobrecargar un sistema ya problemático.</p>
+
+            <div class="warning-box">
+                <h3>⚠️ El Problema del "Retry Hell"</h3>
+                <p><strong>Escenario:</strong> El servidor central está sobrecargado y responde lentamente. Cada sucursal sigue intentando enviar notificaciones, empeorando el problema.</p>
+                <p><strong>Resultado:</strong> Un sistema distribuido que se auto-destruye por ser "demasiado persistente".</p>
+            </div>
+
+            <div class="activity">
+                <h3>🧠 Actividad de Investigación: Circuit Breaker Pattern</h3>
+                <p>Antes de la próxima clase, investiga y responde en tu diario de aprendizaje:</p>
+                
+                <ol class="activity-steps">
+                    <li>
+                        <strong>En mis propias palabras:</strong> ¿Qué es el patrón Circuit Breaker? (Sin copiar definiciones de internet)
+                    </li>
+                    <li>
+                        <strong>Aplicado a EcoMarket:</strong> ¿Cómo actuaría un Circuit Breaker si la API de la sucursal no puede comunicarse con la API central repetidamente?
+                    </li>
+                    <li>
+                        <strong>Comparación crítica:</strong> ¿Por qué una estrategia de Timeout simple no es suficiente? ¿Qué ventaja clave ofrece el Circuit Breaker?
+                    </li>
+                    <li>
+                        <strong>Predicción:</strong> ¿Qué otros problemas podrían surgir si EcoMarket crece a 100 sucursales simultáneas?
+                    </li>
+                </ol>
+            </div>
+
+            <div class="tip-box">
+                <h3>💡 Analogía para Entender Circuit Breaker</h3>
+                <p><strong>Piensa en tu teléfono móvil:</strong> Cuando no hay señal, ¿intentas llamar cada segundo durante una hora, o te das por vencido después de algunos intentos y lo intentas más tarde?</p>
+                <p><strong>Circuit Breaker es esa "inteligencia":</strong> Reconoce cuando algo está roto y deja de intentar temporalmente, dando tiempo al sistema para recuperarse.</p>
+                <p><strong>Tres estados:</strong> Cerrado (funciona normal), Abierto (deja de intentar), Medio-abierto (prueba ocasionalmente si ya se recuperó)</p>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span>🛡️ Ejemplo: Circuit Breaker Simple</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                </div>
+<pre># Para la próxima semana - implementación avanzada con circuit breaker
+
+from enum import Enum
+from datetime import datetime, timedelta
+
+class CircuitState(Enum):
+    CLOSED = "closed"      # Funcionando normal
+    OPEN = "open"          # Bloqueado por fallos
+    HALF_OPEN = "half_open" # Probando si ya se recuperó
+
+class CircuitBreaker:
+    def __init__(self, failure_threshold=5, recovery_timeout=30):
+        self.failure_threshold = failure_threshold
+        self.recovery_timeout = recovery_timeout
+        self.failure_count = 0
+        self.last_failure_time = None
+        self.state = CircuitState.CLOSED
+    
+    async def call(self, func, *args, **kwargs):
+        """Ejecuta función con protección de circuit breaker"""
+        
+        if self.state == CircuitState.OPEN:
+            # ¿Ya pasó suficiente tiempo para intentar de nuevo?
+            if self._should_attempt_reset():
+                self.state = CircuitState.HALF_OPEN
+            else:
+                raise Exception("Circuit breaker está abierto")
+        
+        try:
+            # Intentar la operación
+            result = await func(*args, **kwargs)
+            self._on_success()
+            return result
+            
+        except Exception as e:
+            self._on_failure()
+            raise e
+    
+    def _on_success(self):
+        """Resetear contador en caso de éxito"""
+        self.failure_count = 0
+        self.state = CircuitState.CLOSED
+    
+    def _on_failure(self):
+        """Incrementar fallos y posiblemente abrir el circuito"""
+        self.failure_count += 1
+        self.last_failure_time = datetime.now()
+        
+        if self.failure_count >= self.failure_threshold:
+            self.state = CircuitState.OPEN
+
+# Uso en la sucursal:
+# circuit_breaker = CircuitBreaker(failure_threshold=3, recovery_timeout=60)
+# await circuit_breaker.call(notify_central_about_sale, ...)</pre>
+            </div>
+
+            <div class="activity">
+                <h3>🔮 Actividad de Proyección: Escalando a 100 Sucursales</h3>
+                <p>Imagina que EcoMarket tiene un éxito masivo y abre 100 sucursales. ¿Qué nuevos problemas emergerían con tu arquitectura actual?</p>
+                
+                <ol class="activity-steps">
+                    <li>
+                        <strong>Volumen de notificaciones:</strong> ¿Puede el servidor central manejar notificaciones de 100 sucursales simultáneamente?
+                    </li>
+                    <li>
+                        <strong>Sincronización de inventario:</strong> ¿Cómo propagar cambios de precios o nuevos productos a 100 sucursales?
+                    </li>
+                    <li>
+                        <strong>Monitoreo y observabilidad:</strong> ¿Cómo saber si alguna sucursal tiene problemas sin revisarlas una por una?
+                    </li>
+                    <li>
+                        <strong>Particionado de datos:</strong> ¿Debería cada región tener su propio servidor central?
+                    </li>
+                </ol>
+            </div>
+
+            <div class="learning-objective">
+                <h3>🎓 Hacia Patrones Más Avanzados</h3>
+                <p>Los conceptos que explorarás después incluyen:</p>
+                <ul>
+                    <li><strong>Event Sourcing:</strong> En lugar de almacenar estado, almacenar secuencia de eventos</li>
+                    <li><strong>CQRS:</strong> Separar operaciones de lectura y escritura para mejor rendimiento</li>
+                    <li><strong>Saga Pattern:</strong> Manejar transacciones distribuidas de larga duración</li>
+                    <li><strong>API Gateway:</strong> Punto único de entrada para múltiples servicios</li>
+                </ul>
+                <p>Cada uno resuelve problemas específicos que emergen al escalar sistemas distribuidos.</p>
+            </div>
+
+            <div class="checkpoint">
+                <h4>✅ Checkpoint de Fase 4</h4>
+                <div class="checkpoint-item">
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span>Entiendo por qué los reintentos simples pueden empeorar un problema</span>
+                </div>
+                <div class="checkpoint-item">
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span>Puedo explicar Circuit Breaker con una analogía del mundo real</span>
+                </div>
+                <div class="checkpoint-item">
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span>Identifiqué al menos 3 problemas de escalabilidad para 100 sucursales</span>
+                </div>
+                <div class="checkpoint-item">
+                    <div class="checkbox" onclick="toggleCheck(this)"></div>
+                    <span>Completé mi investigación sobre patrones de resiliencia</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer de progreso -->
+        <footer style="text-align: center; padding: 2rem; margin-top: 2rem; background: white; border-radius: var(--border-radius-lg); box-shadow: var(--shadow-md);">
+            <h3 style="color: var(--blue-accent); margin-bottom: 1rem;">🎉 ¡Felicitaciones!</h3>
+            <p>Has completado un viaje desde conceptos abstractos hasta implementación concreta de sistemas distribuidos. Ahora tienes las herramientas conceptuales y prácticas para construir sistemas escalables y resilientes.</p>
+            <div style="margin-top: 1.5rem;">
+                <button onclick="resetProgress()" style="background: var(--green-accent); color: white; border: none; padding: 0.5rem 1rem; border-radius: var(--border-radius); cursor: pointer;">
+                    🔄 Reiniciar Progreso
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        let currentPhase = 0;
+        const totalPhases = 4;
+
+        function showPhase(phaseIndex) {
+            // Ocultar todas las fases
+            document.querySelectorAll('.phase-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            // Mostrar la fase seleccionada
+            document.querySelector(`.phase-card[data-phase="${phaseIndex}"]`).classList.add('active');
+            
+            // Actualizar navegación
+            document.querySelectorAll('.phase-nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelectorAll('.phase-nav-btn')[phaseIndex].classList.add('active');
+            
+            // Actualizar progreso
+            currentPhase = phaseIndex;
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const progressPercentage = ((currentPhase + 1) / totalPhases) * 100;
+            document.getElementById('progressFill').style.width = `${progressPercentage}%`;
+            
+            // Actualizar steps
+            document.querySelectorAll('.progress-step').forEach((step, index) => {
+                step.classList.remove('active', 'completed');
+                if (index < currentPhase) {
+                    step.classList.add('completed');
+                } else if (index === currentPhase) {
+                    step.classList.add('active');
+                }
+            });
+        }
+
+        function toggleCheck(checkbox) {
+            checkbox.classList.toggle('checked');
+            if (checkbox.classList.contains('checked')) {
+                checkbox.innerHTML = '✓';
+            } else {
+                checkbox.innerHTML = '';
+            }
+        }
+
+        function copyCode(button) {
+            const codeBlock = button.parentElement.nextElementSibling;
+            const text = codeBlock.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.textContent;
+                button.textContent = '¡Copiado!';
+                button.style.background = '#4CAF50';
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = '#2196F3';
+                }, 2000);
+            });
+        }
+
+        function resetProgress() {
+            if (confirm('¿Estás seguro que quieres reiniciar todo el progreso?')) {
+                // Reiniciar checkboxes
+                document.querySelectorAll('.checkbox').forEach(checkbox => {
+                    checkbox.classList.remove('checked');
+                    checkbox.innerHTML = '';
+                });
+                
+                // Volver a la primera fase
+                showPhase(0);
+                
+                alert('Progreso reiniciado. ¡A empezar de nuevo!');
+            }
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', () => {
+            updateProgress();
+        });
+
+        // Navegación con teclado
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' && currentPhase < totalPhases - 1) {
+                showPhase(currentPhase + 1);
+            } else if (e.key === 'ArrowLeft' && currentPhase > 0) {
+                showPhase(currentPhase - 1);
+            }
+        });
+    </script>
+</body>
+</html>
