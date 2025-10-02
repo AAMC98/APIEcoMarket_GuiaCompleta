@@ -1,12 +1,14 @@
 ﻿# -*- coding: utf-8 -*-
 from fastapi import FastAPI, HTTPException, BackgroundTasks, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import Dict, List, Optional
 from datetime import datetime
 import logging
+import pika
+import json
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -95,6 +97,11 @@ async def dashboard(request: Request):
         "timestamp": datetime.now()
     })
 
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    """Servir favicon para evitar errores 404"""
+    return HTMLResponse(content="", status_code=204)
+
 @app.get("/api/status", tags=["General"])
 async def api_status():
     return {
@@ -110,11 +117,28 @@ async def api_status():
 @app.post("/products", response_model=Product, tags=["Inventario"])
 async def create_product(product: Product):
     """Crear un nuevo producto en el inventario central"""
-    if product.id in central_inventory:
-        raise HTTPException(status_code=400, detail="ID de producto ya existe")
-    central_inventory[product.id] = product
-    logger.info(f"Producto creado: {product.name} (ID: {product.id})")
-    return product
+    try:
+        if product.id in central_inventory:
+            logger.warning(f"Intento de crear producto con ID existente: {product.id}")
+            raise HTTPException(status_code=400, detail=f"ID de producto {product.id} ya existe")
+        
+        # Validaciones adicionales
+        if product.price <= 0:
+            raise HTTPException(status_code=400, detail="El precio debe ser mayor que 0")
+        if product.stock < 0:
+            raise HTTPException(status_code=400, detail="El stock no puede ser negativo")
+        if not product.name.strip():
+            raise HTTPException(status_code=400, detail="El nombre del producto es requerido")
+            
+        central_inventory[product.id] = product
+        logger.info(f"Producto creado: {product.name} (ID: {product.id})")
+        return product
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creando producto: {e}")
+        raise HTTPException(status_code=400, detail="Error en los datos del producto")
 
 # Leer todos los productos
 @app.get("/products", response_model=List[Product], tags=["Inventario"])
@@ -256,6 +280,53 @@ async def receive_sale_notification(notification: SaleNotification):
     product.stock = max(0, product.stock - notification.quantity_sold)
     
     logger.info(f"Inventario actualizado - {product.name}: {old_stock} -> {product.stock}")
+
+    # Enviar notificación a RabbitMQ
+    import uuid
+    try:
+        params = pika.ConnectionParameters(
+            host='localhost',
+            port=5672,
+            credentials=pika.PlainCredentials('ecomarket_user', 'ecomarket_password'),
+            heartbeat=600,
+            blocked_connection_timeout=300
+        )
+        with pika.BlockingConnection(params) as connection:
+            channel = connection.channel()
+            channel.queue_declare(
+                queue='sale_notifications',
+                durable=True,
+                arguments={
+                    'x-message-ttl': 86400000,  # 24 horas TTL
+                    'x-dead-letter-exchange': '',
+                    'x-dead-letter-routing-key': 'sale_notifications_dlq'
+                }
+            )
+            channel.queue_declare(
+                queue='sale_notifications_dlq',
+                durable=True
+            )
+            channel.confirm_delivery()
+            message = notification.model_dump()
+            message['message_id'] = str(uuid.uuid4())
+            msg_json = json.dumps(message, default=str)
+            published = channel.basic_publish(
+                exchange='',
+                routing_key='sale_notifications',
+                body=msg_json,
+                properties=pika.BasicProperties(
+                    delivery_mode=2,
+                    message_id=message['message_id'],
+                    headers={'source': notification.branch_id}
+                ),
+                mandatory=True
+            )
+            if published:
+                logger.info(f"✅ Mensaje publicado exitosamente: {message['message_id']}")
+            else:
+                logger.warning(f"⚠️ RabbitMQ no confirmó el mensaje")
+    except Exception as e:
+        logger.error(f"Error enviando a RabbitMQ: {e}")
     
     return {
         "status": "received",
