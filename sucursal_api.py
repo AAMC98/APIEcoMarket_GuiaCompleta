@@ -4,9 +4,11 @@ Esta API implementa el principio de AUTONOMÍA: puede operar
 independientemente del servidor central.
 """
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import Dict, List, Optional
 from datetime import datetime
@@ -22,12 +24,21 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# Configuración de templates y archivos estáticos
+templates = Jinja2Templates(directory="templates")
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 # Permitir CORS para el dashboard central
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+        "http://localhost:3000",
+        "*"  # Para desarrollo
+    ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -70,8 +81,35 @@ sales_history: List[SaleResponse] = []
 
 # ===== ENDPOINTS =====
 
-@app.get("/", tags=["General"])
-async def root():
+@app.get("/", response_class=HTMLResponse, tags=["General"])
+async def dashboard_root(request: Request):
+    """Dashboard principal de la sucursal"""
+    return templates.TemplateResponse("sucursal_dashboard.html", {
+        "request": request,
+        "inventory": list(local_inventory.values()),
+        "total_products": len(local_inventory),
+        "sales": sales_history[-10:],  # Últimas 10 ventas
+        "branch_id": BRANCH_ID,
+        "timestamp": datetime.now()
+    })
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    """Servir favicon para evitar errores 404"""
+    return HTMLResponse(content="", status_code=204)
+
+@app.get("/health", tags=["General"])
+async def health_check():
+    """Health check endpoint"""
+    return {
+        "service": f"EcoMarket Sucursal",
+        "branch_id": BRANCH_ID,
+        "status": "healthy",
+        "timestamp": datetime.now()
+    }
+
+@app.get("/api", tags=["General"])
+async def api_root():
     return {
         "service": f"EcoMarket Sucursal",
         "branch_id": BRANCH_ID,
@@ -89,7 +127,12 @@ async def get_local_inventory():
     porque consulta el inventario local de la sucursal.
     """
     logger.info("🏪 Consultando inventario LOCAL (operación autónoma)")
-    return list(local_inventory.values())
+    try:
+        inventory_list = list(local_inventory.values())
+        return inventory_list
+    except Exception as e:
+        logger.error(f"Error obteniendo inventario: {e}")
+        raise HTTPException(status_code=500, detail="Error interno del servidor")
 
 @app.get("/inventario", tags=["Inventario"])
 async def get_inventario_sucursal():
@@ -216,59 +259,16 @@ async def get_sales_stats():
 
 # Interfaz visual básica para ventas
 @app.get("/dashboard", response_class=HTMLResponse, tags=["Visual"])
-async def dashboard():
-    """Dashboard básico de la sucursal"""
-    try:
-        with open("sucursal_dashboard.html", "r", encoding="utf-8") as f:
-            return HTMLResponse(content=f.read())
-    except FileNotFoundError:
-        # Crear un dashboard básico si no existe el archivo
-        basic_dashboard = """
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>EcoMarket - Dashboard Sucursal</title>
-            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-            <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-        </head>
-        <body class="bg-light">
-            <div class="container mt-4">
-                <div class="row">
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header bg-success text-white">
-                                <h2><i class="bi bi-shop"></i> EcoMarket - Sucursal Dashboard</h2>
-                            </div>
-                            <div class="card-body">
-                                <p>Dashboard básico de la sucursal. Para funcionalidad completa, implementar sucursal_dashboard.html</p>
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <a href="/inventory" class="btn btn-primary w-100 mb-2">
-                                            <i class="bi bi-box"></i> Ver Inventario
-                                        </a>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <a href="/sales" class="btn btn-info w-100 mb-2">
-                                            <i class="bi bi-cash"></i> Ver Ventas
-                                        </a>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <a href="/docs" class="btn btn-warning w-100 mb-2">
-                                            <i class="bi bi-book"></i> API Docs
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </body>
-        </html>
-        """
-        return HTMLResponse(content=basic_dashboard)
+async def dashboard(request: Request):
+    """Dashboard de la sucursal con datos dinámicos"""
+    return templates.TemplateResponse("sucursal_dashboard.html", {
+        "request": request,
+        "inventory": list(local_inventory.values()),
+        "total_products": len(local_inventory),
+        "sales": sales_history[-10:],  # Últimas 10 ventas
+        "branch_id": BRANCH_ID,
+        "timestamp": datetime.now()
+    })
 
 async def notify_central_about_sale(
     product_id: int,

@@ -779,11 +779,28 @@
                     throw new Error('URL de sucursal no configurada');
                 }
                 
+                console.log('Cargando inventario de:', selectedBranch, 'URL:', branchUrl);
+                
                 // Llamada real a la API de la sucursal
-                const response = await fetch(`${branchUrl}/inventory`);
+                const response = await fetch(`${branchUrl}/inventory`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
                 
                 if (!response.ok) {
-                    throw new Error(`Error HTTP: ${response.status}`);
+                    const errorText = await response.text();
+                    console.error('Respuesta de error:', errorText);
+                    throw new Error(`Error HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const responseText = await response.text();
+                    console.error('Respuesta no JSON:', responseText.substring(0, 200));
+                    throw new Error('La respuesta no es JSON válido');
                 }
                 
                 const inventoryData = await response.json();
@@ -791,11 +808,22 @@
                 totalBranchItems = currentBranchData.length;
                 
                 // Obtener información adicional de la sucursal
-                const infoResponse = await fetch(`${branchUrl}/`);
-                const branchInfo = infoResponse.ok ? await infoResponse.json() : {
-                    service: selectedBranch,
-                    status: 'unknown'
-                };
+                let branchInfo;
+                try {
+                    const infoResponse = await fetch(`${branchUrl}/api`, {
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    branchInfo = infoResponse.ok ? await infoResponse.json() : {
+                        service: selectedBranch,
+                        status: 'unknown'
+                    };
+                } catch (infoError) {
+                    console.warn('No se pudo obtener info de la sucursal:', infoError);
+                    branchInfo = {
+                        service: selectedBranch,
+                        status: 'unknown'
+                    };
+                }
                 
                 const branchData = {
                     name: getBranchDisplayName(selectedBranch),
@@ -810,7 +838,19 @@
                 
             } catch (error) {
                 console.error('Error cargando inventario de sucursal:', error);
-                showNotification(`Error al cargar inventario: ${error.message}`, 'error');
+                console.log('URL intentada:', `${branchApiUrls[selectedBranch]}/inventory`);
+                
+                // Información más detallada del error
+                let errorMessage = 'Error de conexión';
+                if (error.name === 'SyntaxError' && error.message.includes('JSON')) {
+                    errorMessage = 'La sucursal está devolviendo HTML en lugar de JSON. Verifique que esté corriendo correctamente.';
+                } else if (error.message.includes('Failed to fetch')) {
+                    errorMessage = 'No se puede conectar con la sucursal. Verifique que esté corriendo en el puerto correcto.';
+                } else {
+                    errorMessage = error.message;
+                }
+                
+                showNotification(`Error al cargar inventario: ${errorMessage}`, 'error');
                 showOfflineBranchData();
             }
         }
